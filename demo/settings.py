@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-%uabas!e@&gbykn-6^^eip^(hzkf-^4=b#0@b%(s*okwc&tcsr
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['billinvoicenephro-production.up.railway.app']
 
 
 # Application definition
