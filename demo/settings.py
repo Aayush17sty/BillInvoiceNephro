@@ -125,7 +125,7 @@ CSRF_TRUSTED_ORIGINS = ['https://billinvoicenephro-production.up.railway.app']
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-
+DEBUG = False
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
