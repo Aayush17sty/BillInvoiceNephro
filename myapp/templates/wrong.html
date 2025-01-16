@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+</head>
+<a href="{% url 'index' %}" class = "btn-link">View All Bills</a>
+{% load static %}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+
+<body>
+    <div class="container">
+        <h1>Members</h1>
+        <table id="customers" border="1">
+            <thead>
+
+                <th>Bill Number</th>
+                <th>Details Received</th>
+                <th>Date Received</th>
+                <th>Balance</th>
+                <th colspan="2" id="mid">Action</th>
+            </thead>
+            {% for wrong_invoice in existing_wrong_invoices %}
+  <tr>
+    <td>{{ wrong_invoice.bill_number }}</td>
+    <td>
+        <label>
+            <input type="radio" {% if wrong_invoice.details_received %}checked{% endif %} disabled > Yes
+        </label>
+        <label>
+            <input type="radio" {% if not wrong_invoice.details_received %}checked{% endif %} disabled> No
+        </label>
+    </td>
+    <td>
+        <input
+            type="date"
+            class="date-received"
+            data-row-id="{{ wrong_invoice.id }}"
+            value="{{ wrong_invoice.date_received|date:'Y-m-d' }}"
+            {% if not wrong_invoice.details_received %}disabled{% endif %} readonly
+        >
+    </td>
+<!--    <td>-->
+<!--        <label>-->
+<!--            <input type="radio" {% if x.invoice_correct %}checked{% endif %} > Yes-->
+<!--        </label>-->
+<!--        <label>-->
+<!--            <input type="radio" {% if not x.invoice_correct %}checked{% endif %} > No-->
+<!--        </label>-->
+<!--    </td>-->
+<!--    <td>-->
+<!--        <input-->
+<!--            type="date"-->
+<!--            class="date-corrected"-->
+<!--            data-row-id="{{ x.id }}"-->
+<!--            value="{{ x.date_corrected|date:'Y-m-d' }}"-->
+<!--            {% if not x.invoice_correct %}disabled{% endif %}-->
+<!--        >-->
+<!--    </td>-->
+    <td>{{ wrong_invoice.balance }}</td>
+    <td>
+        <a href="{% url 'update_wrong' wrong_invoice.id %}"><button id="up">update</button></a>
+    </td>
+    <td>
+        <a href="delete_wrong/{{ wrong_invoice.id }}"><button id="del">delete</button></a>
+    </td>
+  </tr>
+{% empty %}
+  <tr>
+    <td colspan="8">No bills with incorrect invoices found.</td>
+  </tr>
+{% endfor %}
+
+        </table>
+    </div>
+</body>
+</html>

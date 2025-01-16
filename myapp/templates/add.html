@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+{% load static %}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+
+<body>
+    <div class="container1">
+        <h1>Add Member</h1>
+        <form action="{% url 'addrec' %}" method="post">
+    {% csrf_token %}
+
+    <label for="bill_number">Bill Number</label><br><br>
+    <input type="text" name="bill_number" id="bill_number"><br><br>
+
+    <label for="details_received">Details Received</label><br><br>
+    <input type="checkbox" name="details_received" id="details_received" onclick="fillDateReceived()"><br><br>
+
+    <label for="date_received">Date Received</label><br><br>
+    <input type="date" name="date_received" id="date_received" readonly><br><br>
+
+<!--    <label for="invoice_correct">Invoice Correct</label><br><br>-->
+<!--    <input type="checkbox" name="invoice_correct" id="invoice_correct"><br><br>-->
+
+<!--    <label for="date_corrected">Date Corrected</label><br><br>-->
+<!--    <input type="date" name="date_corrected" id="date_corrected"><br><br>-->
+
+    <label for="balance">Balance</label><br><br>
+    <input type="number" name="balance" id="balance" step="0.01"><br><br>
+
+    <button type="submit" id="new">Submit</button>
+
+            <script>
+    function fillDateReceived() {
+        var checkbox = document.getElementById('details_received');
+        var dateInput = document.getElementById('date_received');
+
+        if (checkbox.checked) {
+            var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+            var yyyy = today.getFullYear();
+            today = yyyy + '-' + mm + '-' + dd;
+
+            dateInput.value = today;
+        } else {
+            dateInput.value = ''; // Clear the date if the checkbox is unchecked
+        }
+    }
+</script>
+</form>
+
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+{% load static %}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+
+<body>
+    <div class="container2">
+        <h1>Update Member</h1>
+<form action="{% url 'uprec' mem.id %}" method="post">
+    {% csrf_token %}
+    <label for="bill_number">Bill Number</label><br><br>
+    <input type="text" name="bill_number" id="bill_number" value="{{ mem.bill_number }}"
+        {% if mem.bill_number %}readonly{% endif %}><br><br>
+
+    <label>Details Received</label><br><br>
+    <input type="radio" name="details_received" id="details_received_yes" value = "yes"
+           {% if mem.details_received %}checked{% endif %}
+           {% if mem.date_received %}disabled{% endif %}>
+    <label for="details_received_yes">Yes</label><br>
+    <input type="radio" name="details_received" id="details_received_no" value = "no"
+           {% if not mem.details_received %}checked{% endif %}
+           {% if mem.date_received %}disabled{% endif %}>
+    <label for="details_received_no">No</label><br>
+
+    <label for="date_received">Date Received</label><br><br>
+    <input type="date" name="date_received" id="date_received" value="{{ mem.date_received|default_if_none:'' }}" readonly><br><br>
+
+    <label>Invoice Correct</label><br><br>
+
+<input type="radio" name="invoice_correct" id="invoice_correct_yes" value="yes"
+    {% if mem.invoice_correct %}checked{% endif %}
+    {% if mem.date_corrected %}disabled{% endif %}>
+
+<label for="invoice_correct_yes">Yes</label><br>
+
+<input type="radio" name="invoice_correct" id="invoice_correct_no" value="no"
+    {% if not mem.invoice_correct %}checked{% endif %}
+    {% if mem.date_corrected %}disabled{% endif %}>
+<label for="invoice_correct_no">No</label><br><br>
+
+
+    <label for="date_corrected">Date Corrected</label><br><br>
+    <input type="date" name="date_corrected" id="date_corrected" value="{{ mem.date_corrected|default_if_none:'' }}" readonly><br><br>
+
+    <label for="balance">Balance</label><br><br>
+    <input type="number" name="balance" id="balance" step="0.01" value="{{ mem.balance }}"><br><br>
+
+    <button type="submit" id="new1">Update</button>
+
+    <script>
+    // Handle "Details Received" radio buttons
+    const detailsReceivedYes = document.getElementById('details_received_yes');
+    const dateReceivedInput = document.getElementById('date_received');
+
+    detailsReceivedYes.addEventListener('change', function() {
+        if (detailsReceivedYes.checked && !dateReceivedInput.value) {
+            dateReceivedInput.value = new Date().toISOString().split('T')[0]; // Set current date
+        }
+    });
+
+    // Handle "Invoice Correct" radio buttons
+    const invoiceCorrectYes = document.getElementById('invoice_correct_yes');
+    const dateCorrectedInput = document.getElementById('date_corrected');
+    const invoiceCorrectNo = document.getElementById('invoice_correct_no');
+    invoiceCorrectYes.addEventListener('change', function() {
+        if (invoiceCorrectYes.checked && !dateCorrectedInput.value) {
+            dateCorrectedInput.value = new Date().toISOString().split('T')[0]; // Set current date
+        }
+    });
+    invoiceCorrectNo.addEventListener('change', function() {
+        if (invoiceCorrectNo.checked && !dateCorrectedInput.value) {
+            dateCorrectedInput.value = new Date().toISOString().split('T')[0]; // Set current date
+        }
+    });
+</script>
+
+</form>
+
+
+
+
+
+    </div>
+</body>
+
+</html>

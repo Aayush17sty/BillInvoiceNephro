@@ -1,0 +1,239 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+{% load static %}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+<a href="{% url 'incorrect_invoices' %}" class = "btn-link">View Bills with Incorrect Invoices</a>
+<body>
+    <div class="container">
+        <h1>Members</h1>
+        <table id="customers" border="1">
+            <thead>
+
+                <th>Bill Number</th>
+                <th>Details Received</th>
+                <th>Date Received</th>
+                <th>Invoice Correct</th>
+                <th>Date Correct</th>
+                <th>Balance</th>
+                <th colspan="2" id="mid">Action</th>
+            </thead>
+            {% for x in mem %}
+            <tr>
+
+                <td>{{x.bill_number}}</td>
+
+                <td>
+    <label>
+        <input type="radio" {% if x.details_received %}checked{% endif %} > Yes
+    </label>
+    <label>
+        <input type="radio" {% if not x.details_received %}checked{% endif %} > No
+    </label>
+</td>
+
+                <td>
+                    <input
+                        type="date"
+                        class="date-received"
+                        data-row-id="{{ x.id }}"
+                        value="{{ x.date_received|date:'Y-m-d' }}"
+                        {% if not bill.details_received %}disabled{% endif %}
+                    >
+                </td>
+
+                <td>
+    <label>
+        <input type="radio" name="invoice_correct_{{ x.id }}"
+               {% if x.invoice_correct == True %}checked{% endif %}> Yes
+    </label>
+    <label>
+        <input type="radio" name="invoice_correct_{{ x.id }}"
+               {% if x.invoice_correct == False %}checked{% endif %}> No
+    </label>
+</td>
+
+                <td>
+                    <input
+                        type="date"
+                        class="date-corrected"
+                        data-row-id="{{ x.id }}"
+                        value="{{ x.date_corrected|date:'Y-m-d' }}"
+                        {% if not bill.invoice_correct %}disabled{% endif %}
+                    >
+                </td>
+
+                <td>{{x.balance}}</td>
+                <td>
+                    <a href="update/{{x.id}}"><button id="up">update</button></a>
+                </td>
+                <td>
+                    <a href="delete/{{x.id}}"><button id="del">delete</button></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        <br><br>
+        <a href="{% url 'add' %}"><button id="new3">Add Member</button></a>
+
+    </div>
+    <script>
+// Function to calculate the difference in days between two dates
+        function calculateDateDifference(date1, date2) {
+            const d1 = new Date(date1);
+            const d2 = new Date(date2);
+            return Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
+        }
+
+        // Function to check and highlight rows based on conditions
+        function checkAndHighlightRows() {
+            const currentDate = new Date().toISOString().split('T')[0]; // Current date in YYYY-MM-DD format
+
+            document.querySelectorAll('tbody tr').forEach(row => {
+                const dateReceivedInput = row.querySelector('.date-received');
+                const dateCorrectedInput = row.querySelector('.date-corrected');
+                let highlight = false;
+
+                if (dateReceivedInput && dateReceivedInput.value) {
+                    const dateReceived = dateReceivedInput.value;
+
+                    if (dateCorrectedInput && dateCorrectedInput.value) {
+                        const dateCorrected = dateCorrectedInput.value;
+
+                        // Highlight if the difference between the date corrected and current date exceeds 2 days
+                        if (calculateDateDifference(dateCorrected, currentDate) > 2) {
+                            highlight = true;
+                        }
+                    } else {
+                        // Highlight if the difference between the date received and current date exceeds 2 days
+                        if (calculateDateDifference(dateReceived, currentDate) > 2) {
+                            highlight = true;
+                        }
+                    }
+                }
+
+                // Apply or remove the highlight
+                if (highlight) {
+                    row.classList.add('highlighted');
+                } else {
+                    row.classList.remove('highlighted');
+                }
+            });
+        }
+
+        // Attach event listeners to dynamically check rows
+        document.querySelectorAll('.date-received, .date-corrected').forEach(input => {
+            input.addEventListener('change', checkAndHighlightRows);
+        });
+
+        document.querySelectorAll('.details-checkbox, .invoice-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', checkAndHighlightRows);
+        });
+
+        // Check rows on page load
+        document.addEventListener('DOMContentLoaded', checkAndHighlightRows);
+
+        // Existing functionality for checkbox and balance
+        document.querySelectorAll('.details-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                const rowId = e.target.dataset.rowId;
+                const dateInput = document.querySelector(`.date-received[data-row-id="${rowId}"]`);
+
+                if (e.target.checked) {
+                    const currentDate = new Date().toISOString().split('T')[0];
+                    dateInput.value = currentDate;
+                } else {
+                    dateInput.value = '';
+                }
+
+                dateInput.disabled = !e.target.checked;
+                checkAndHighlightRows();
+            });
+        });
+
+        // Existing functionality for invoice checkboxes
+document.querySelectorAll('.invoice-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', (e) => {
+        const rowId = e.target.dataset.rowId;
+        const detailsCheckbox = document.querySelector(`.details-checkbox[data-row-id="${rowId}"]`);
+        const dateInput = document.querySelector(`.date-corrected[data-row-id="${rowId}"]`);
+
+        // If details checkbox is not checked, prevent modifying invoice checkboxes
+        if (!detailsCheckbox.checked) {
+            e.target.checked = false;  // Uncheck the clicked checkbox
+            return;
+        }
+
+        // Disable the other checkbox in the same row when one is checked
+        const otherCheckbox = rowId => {
+            if (e.target.id.includes('yes')) {
+                return document.querySelector(`#no-${rowId}`);
+            } else {
+                return document.querySelector(`#yes-${rowId}`);
+            }
+        };
+
+        // Ensure only one checkbox is checked
+        if (e.target.checked) {
+            const other = otherCheckbox(rowId);
+            if (other) {
+                other.checked = false;
+            }
+        }
+
+        // Enable or disable the corrected date field based on checkbox state
+        if (e.target.checked) {
+            const currentDate = new Date().toISOString().split('T')[0];
+            dateInput.value = currentDate;
+        } else {
+            dateInput.value = '';
+        }
+
+        // Disable/enable the date input based on invoice correctness
+        dateInput.disabled = !e.target.checked;
+        checkAndHighlightRows();
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.details-received').forEach(radio => {
+        radio.addEventListener('change', function () {
+            const rowId = this.name.split('-')[2]; // Extract the row ID
+            const radios = document.querySelectorAll(`input[name="details-received-${rowId}"]`);
+
+            // Disable all radio buttons in this group
+            radios.forEach(r => {
+                r.disabled = true;
+            });
+
+            // Optionally: Send the selected value to the backend via AJAX
+            updateField(rowId, 'details_received', this.value === 'yes');
+        });
+    });
+});
+
+// Function to send AJAX request (optional, as per backend needs)
+function updateField(rowId, fieldName, value) {
+    fetch(`/update-field/${rowId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}' // Include CSRF token
+        },
+        body: JSON.stringify({ field: fieldName, value: value })
+    }).then(response => response.json())
+      .then(data => console.log('Update successful:', data))
+      .catch(error => console.error('Error updating field:', error));
+}
+
+});
+
+    </script>
+</body>
+
+</html>
